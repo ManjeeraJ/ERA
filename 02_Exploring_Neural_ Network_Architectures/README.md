@@ -1,4 +1,11 @@
-# Assignment
+# 📚 Session 2 Assignment
+
+## 📌 Table of Contents
+
+1. [Problem Statement](#problem-statement)
+2. [Introduction](#introduction)
+
+## 🎯 Problem Statement
 
 1. Open the link above
 2. Duplicate this file to your Collaboratory
@@ -11,3 +18,7 @@
 5. You'll be running the code once/twice during these 45 minutes (before attempting the Assignment, try and play around in another duplicate file)
 6. Read the Assignment Questions carefully before attempting the questions
 7. Negative Score for BAD file name
+
+## 📚 Introduction
+
+The code for this assignment loads the MNIST data, builds a naive model and trains the model on the loaded data. The code can be found [here](./Session2_Fix_Error.ipynb).
