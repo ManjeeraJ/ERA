@@ -55,13 +55,14 @@
 
 ## 🧠 Backpropagation
 
+1. The below image shows the backpropagation steps for a simple neural network
+
 ![Alt text](./images/backprop_formulae.png "Network")
 
-1. The below image shows the backpropagation steps for a simple neural network
+2. The below image shows what happens to the error graph when you change the learning rate from [0.1, 0.2, 0.5, 0.8, 1.0, 2.0]
 
 ![Alt text](./images/loss_curves.png "Loss graph")
 
-2. The below image shows what happens to the error graph when you change the learning rate from [0.1, 0.2, 0.5, 0.8, 1.0, 2.0]
 3. Link of the excel implementing the steps and calculating the loss for multiple iterations is [here](./Backpropagation.xlsx)
 
 ## 📖 Additional Resources
