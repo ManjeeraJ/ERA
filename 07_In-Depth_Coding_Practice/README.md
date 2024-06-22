@@ -1,4 +1,13 @@
-# Assignment:
+# 📚 Session 7 Assignment
+
+## 📌 Table of Contents
+
+1. [Problem Statement](#problem-statement)
+2. [Introduction](#introduction)
+3. [Code Iterations](#file-structure)
+4. [Additional Resources](#additional-resources)
+
+## 🎯 Problem Statement
 
 1. Your new target is:
     - 99.4% (this must be consistently shown in your last few epochs, and not a one-time achievement)
@@ -19,24 +28,67 @@
 2. Less than or equal to 15 Epochs
 3. Less than 8000 Parameters
 
-### A walkthrough of the target, results and analysis of each of the 4 iterations
+## 📚 Introduction
 
-#### Iteration 1
-<b>Target :</b> To build the basic skeletion ensuring 1. receptive field close to image size i.e 28 2. Parameters < 8k 3. Correct placement of max pooling to get edges,gradients and textures,patterns<br>
-<b>Results :</b> The final model architecture is C->C->T->C->C->T->C->1x1->GAP with number of channels = 16 across all layers<br>
-<b>Analysis :</b> While there isnt such a huge gap between train and test accuracies, there is scope for learning. And since I cannot increase the parameters by a lot, I went for Batch Normalization next to make the model train harder
+The goal of the assignment is to iteratively reach the target accuracy by systematically making changes in the code (Model architecture, Image augmentation, Learning rates etc). Changes have to be made based on the performance of the training logs.
 
-#### Iteration 2
-<b>Target :</b> To improve the overall perfromance of the model by including batch normalization<br>
-<b>Results :</b> The train and test accuracies have hit the 99% benchmark<br>
-<b>Analysis :</b> While the test and training accuracies have both increased, there is a possibility of overfitting in the last few epochs. I will try dopout next to address this issue
+## 🔄 Code Iterations
 
-#### Iteration 3
-<b>Target :</b> To reduce overfitting by including dropout = 0.1<br>
-<b>Results :</b> The gap between train and test accuracies has reduced but the overall performance has fallen to 98%<br>
-<b>Analysis :</b> To improve test accuracy, I have to improve the train accuracy by improving the learning capacity of the model. I am going to try 1. Increasing the number of kernels if possible 2. Add image augmentation 3. trying a step learning scheduler
+### ⭐ [Iteration 1](./Iteration_1.ipynb)
+**<u>Target:</u>**
+- Build the basic skeleton ensuring:
+  1. Receptive field close to image size (28).
+  2. Parameters < 8k.
+  3. Correct placement of max pooling to get edges, gradients, textures, and patterns.
 
-#### Iteration 4
-<b>Target :</b> To improve the overall perfromance of the model by increasing number of weights, adding image augmentation and using a step LR to try to hit the target accuracy faster<br>
-<b>Results :</b> The train and test accuracies are fluctuating about 98.8%<br>
-<b>Analysis :</b> Increasing the weights(by +300) and image augmentation(random rotation and random affine) has not helped improve the train accuracy for some reason. Therefore step LR doesnt seem to help much either. YTD : I would still try to change the model architecture to add more weight(by adding kernels), probably not have a sencond transition block and instead have only 2 convolutions after the first transition block. 
+**<u>Results:</u>**
+- Final model architecture: `C -> C -> T (1x1 -> MP) -> C -> C -> T (1x1 -> MP) -> C -> GAP -> 1x1`, with 16 channels across all layers. Note: 1x1 can occur after MP in the Transition block to reduce memory during multiplication.  
+  - **Best train accuracy:** 98.55%  
+  - **Best test accuracy:** 98.57%
+
+**<u>Analysis:</u>**
+- The gap between train and test accuracies is small, indicating potential for further learning. To enhance learning without significantly increasing parameters, Batch Normalization will be introduced next.
+
+### 🌟 [Iteration 2](./Iteration_2.ipynb)
+**<u>Target:</u>**
+- Improve overall performance by including Batch Normalization.
+
+**<u>Results:</u>**
+- Train and test accuracies have surpassed the 99% benchmark.  
+  - **Best train accuracy:** 99.50%  
+  - **Best test accuracy:** 99.12%
+
+**<u>Analysis:</u>**
+- Both accuracies have increased, but potential overfitting is observed in the final epochs. To address this, dropout will be introduced in the next iteration.
+
+### ✨ [Iteration 3](./Iteration_3.ipynb)
+**<u>Target:</u>**
+- Reduce overfitting by including dropout (0.1).
+
+**<u>Results:</u>**
+- The gap between train and test accuracies has reduced, but overall performance has fallen to around 98%.  
+  - **Best train accuracy:** 98.85%  
+  - **Best test accuracy:** 99.17%
+
+**<u>Analysis:</u>**
+- To improve test accuracy, train accuracy must be enhanced by:  
+  1. Increasing the number of kernels if possible.  
+  2. Adding image augmentation.  
+  3. Trying a step learning scheduler.
+
+### 💫 [Iteration 4](./Iteration_4.ipynb)
+**<u>Target:</u>**
+- Improve overall performance by increasing the number of weights, adding image augmentation, and using a step LR to hit the target accuracy faster.
+
+**<u>Results:</u>**
+- Train and test accuracies are fluctuating around 98.8%.  
+  - **Best train accuracy:** 98.87%  
+  - **Best test accuracy:** 99.15%
+
+**<u>Analysis:</u>**
+- Increasing weights (by +300) and adding image augmentation (random rotation and random affine) haven't improved train accuracy significantly. The step LR also hasn't been very effective. Further actions to improve accuracy include:  
+  1. Changing the model architecture to add more weights (by adding kernels).  
+  2. Possibly eliminating the second transition block and having only 2 convolutions after the first transition block.
+
+## 📖 Additional Resources
+1. We need to calculate the mean and standard deviation across each channel for full dataset. The code can be found [here](./ERA1S7F1.ipynb).
