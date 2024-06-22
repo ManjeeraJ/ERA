@@ -1,4 +1,11 @@
-# Assignment:
+# 📚 Session 7 Assignment
+
+## 📌 Table of Contents
+
+1. [Problem Statement](#problem-statement)
+2. [Backpropagation](#backpropagation)
+3. [Additional Resources](#additional-resources)
+## 🎯 Problem Statement
 
 1. PART 1[250]: Rewrite the whole Excel sheet showing backpropagation. Explain each major step, and write it on GitHub. 
     - Use exactly the same values for all variables as used in the class
@@ -45,3 +52,18 @@
 7. If you misrepresent your answers, you will be awarded -100% of the score.
 8. If you submit a Colab Link instead of the notebook uploaded on GitHub or redirect the GitHub page to Colab, you will be awarded -50%
 9. Submit details to S6 - Assignment QnA. 
+
+## 🧠 Backpropagation
+
+![Alt text](./images/backprop_formulae.png "Network")
+
+1. The below image shows the backpropagation steps for a simple neural network
+
+![Alt text](./images/loss_curves.png "Loss graph")
+
+2. The below image shows what happens to the error graph when you change the learning rate from [0.1, 0.2, 0.5, 0.8, 1.0, 2.0]
+3. Link of the excel implementing the steps and calculating the loss for multiple iterations is [here](./Backpropagation.xlsx)
+
+## 📖 Additional Resources
+
+1. The code for PART 2 is [here](./Iteration_4.ipynb)

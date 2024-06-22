@@ -1,13 +1,41 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchsummary import summary
-import tqdm
-from utils import GetCorrectPredCount
-import matplotlib.pyplot as plt
 
 dropout_value = 0.1
 class Net(nn.Module):
+    """
+    A convolutional neural network (CNN) for image classification.
+
+    This network is designed to process grayscale images (single channel) 
+    and classify them into one of 10 categories. The architecture consists 
+    of several convolutional blocks, transition blocks, pooling layers, 
+    and an output block that uses global average pooling.
+
+    Attributes:
+    -----------
+    convblock1 : nn.Sequential
+        Input block with a convolutional layer followed by ReLU activation.
+    convblock2 : nn.Sequential
+        Convolution Block 1 with a convolutional layer followed by ReLU activation.
+    convblock3 : nn.Sequential
+        Transition Block 1 with a 1x1 convolutional layer.
+    pool1 : nn.MaxPool2d
+        Max pooling layer in Transition Block 1.
+    convblock4 : nn.Sequential
+        Convolution Block 2 with a convolutional layer followed by ReLU activation.
+    convblock5 : nn.Sequential
+        Convolution Block 3 with a convolutional layer followed by ReLU activation.
+    convblock6 : nn.Sequential
+        Transition Block 2 with a 1x1 convolutional layer.
+    pool2 : nn.MaxPool2d
+        Max pooling layer in Transition Block 2.
+    convblock7 : nn.Sequential
+        Convolution Block 4 with a convolutional layer (with padding) followed by ReLU activation.
+    gap : nn.Sequential
+        Global average pooling layer in the Output Block.
+    convblock8 : nn.Sequential
+        Final 1x1 convolutional layer in the Output Block.
+    """
     def __init__(self):
         super(Net, self).__init__()
         # Input Block
@@ -16,7 +44,7 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(16),
             nn.Dropout(dropout_value)
-        ) # r_out = 3, output_size = 26
+        )  # r_out = 3, output_size = 26
 
         # CONVOLUTION BLOCK 1
         self.convblock2 = nn.Sequential(
@@ -24,34 +52,35 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(16),
             nn.Dropout(dropout_value)
-        ) # r_out = 5, output_size = 24
+        )  # r_out = 5, output_size = 24
 
         # TRANSITION BLOCK 1
         self.convblock3 = nn.Sequential(
             nn.Conv2d(in_channels=16, out_channels=8, kernel_size=(1, 1), padding=0, bias=False),
-        ) # r_out = 5, output_size = 24
-        self.pool1 = nn.MaxPool2d(2, 2) # r_out = 6, output_size = 12
+        )  # r_out = 5, output_size = 24
+        self.pool1 = nn.MaxPool2d(2, 2)  # r_out = 6, output_size = 12
 
         # CONVOLUTION BLOCK 2
         self.convblock4 = nn.Sequential(
             nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
-            nn.ReLU(), #  r_out = 10, output_size = 10
+            nn.ReLU(),
             nn.BatchNorm2d(16),
             nn.Dropout(dropout_value)
+        )  # r_out = 10, output_size = 10
 
-        ) # CONVOLUTION BLOCK 3
+        # CONVOLUTION BLOCK 3
         self.convblock5 = nn.Sequential(
             nn.Conv2d(in_channels=16, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
-            nn.ReLU(), #  r_out = 14, output_size = 8
+            nn.ReLU(),
             nn.BatchNorm2d(16),
             nn.Dropout(dropout_value)
+        )  # r_out = 14, output_size = 8
 
-        )
         # TRANSITION BLOCK 2
         self.convblock6 = nn.Sequential(
             nn.Conv2d(in_channels=16, out_channels=8, kernel_size=(1, 1), padding=0, bias=False),
-        ) #  r_out = 14, output_size = 8
-        self.pool2 = nn.MaxPool2d(2, 2) #  r_out = 15, output_size = 4
+        )  # r_out = 14, output_size = 8
+        self.pool2 = nn.MaxPool2d(2, 2)  # r_out = 15, output_size = 4
 
         # CONVOLUTION BLOCK 4
         self.convblock7 = nn.Sequential(
@@ -59,20 +88,30 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(16),
             nn.Dropout(dropout_value)
-        ) #  r_out = 23, output_size = 4
+        )  # r_out = 23, output_size = 4
+
+        # OUTPUT BLOCK
+        self.gap = nn.Sequential(
+            nn.AvgPool2d(kernel_size=4)
+        )  # output_size = 1        
 
         # 1X1
         self.convblock8 = nn.Sequential(
             nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
         )
 
-        # OUTPUT BLOCK
-        self.gap = nn.Sequential(
-            nn.AvgPool2d(kernel_size=4)
-        ) # output_size = 1
-
-
     def forward(self, x):
+        """
+        Defines the forward pass of the network.
+
+        Parameters:
+        x : torch.Tensor
+            Input tensor of shape (batch_size, 1, 28, 28), representing a batch of grayscale images.
+
+        Returns:
+        torch.Tensor
+            Output tensor of shape (batch_size, 10) with log probabilities for each class.
+        """
         x = self.convblock1(x)
         x = self.convblock2(x)
         x = self.convblock3(x)
@@ -87,84 +126,3 @@ class Net(nn.Module):
 
         x = x.view(-1, 10)
         return F.log_softmax(x, dim=-1)
-
-def model_summary(model, input_size):
-    # use_cuda = torch.cuda.is_available()
-    # device = torch.device("cuda" if use_cuda else "cpu")
-    summary(model, input_size=(1, 28, 28))
-
-# Data to plot accuracy and loss graphs
-train_losses = []
-test_losses = []
-train_acc = []
-test_acc = []
-
-test_incorrect_pred = {'images': [], 'ground_truths': [], 'predicted_vals': []}
-
-def model_train(model, device, train_loader, optimizer, criterion):
-  model.train() # entering training mode
-  pbar = tqdm.tqdm(train_loader)
-
-  train_loss = 0
-  correct = 0
-  processed = 0
-
-  for batch_idx, (data, target) in enumerate(pbar):
-    data, target = data.to(device), target.to(device)
-    optimizer.zero_grad() # makes gradients zero from prev loop. We mention at the start of the loop because in case in last run, the kernel was stopped in between and gradients were accumulated in optimizer
-
-    # Predict
-    pred = model(data)
-
-    # Calculate loss
-    loss = criterion(pred, target)
-    train_loss+=loss.item()
-
-    # Backpropagation
-    loss.backward() #calculates the gradients
-    optimizer.step() # updates the weights
-
-    correct += GetCorrectPredCount(pred, target)
-    processed += len(data)
-
-    pbar.set_description(desc= f'Train: Loss={loss.item():0.4f} Batch_id={batch_idx} Accuracy={100*correct/processed:0.2f}')
-
-  train_acc.append(100*correct/processed)
-  train_losses.append(train_loss/len(train_loader))
-
-def model_test(model, device, test_loader, criterion):
-    model.eval()
-
-    test_loss = 0
-    correct = 0
-
-    with torch.no_grad(): # to ensure no leak
-        for batch_idx, (data, target) in enumerate(test_loader):
-            data, target = data.to(device), target.to(device)
-
-            output = model(data)
-            test_loss += criterion(output, target, reduction='sum').item()  # sum up batch loss
-
-            correct += GetCorrectPredCount(output, target)
-
-
-    test_loss /= len(test_loader.dataset)
-    test_acc.append(100. * correct / len(test_loader.dataset))
-    test_losses.append(test_loss)
-
-    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
-
-
-def draw_graphs():
-
-    fig, axs = plt.subplots(2,2,figsize=(15,10))
-    axs[0, 0].plot(train_losses)
-    axs[0, 0].set_title("Training Loss")
-    axs[1, 0].plot(train_acc)
-    axs[1, 0].set_title("Training Accuracy")
-    axs[0, 1].plot(test_losses)
-    axs[0, 1].set_title("Test Loss")
-    axs[1, 1].plot(test_acc)
-    axs[1, 1].set_title("Test Accuracy")
